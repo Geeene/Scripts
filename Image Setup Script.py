@@ -51,8 +51,6 @@ def handle(param, param2):
     if target_source and img_paths:
         for currentImage in img_paths:
             imgs.append(Image.open(currentImage))
-        transparency = np.asarray([[[0,0,0,0],[0,0,0,0],[0,0,0,0]]])
-        print(transparency)
         # In the case of a Horizontal Layout this gets the number of rows
         # In the case of vertical, it decides the number of columns
         row_column_number = int(np.ceil(len(imgs) / line_break_point))
