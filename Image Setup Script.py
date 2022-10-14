@@ -6,7 +6,7 @@ from PIL import Image
 target_source = ""
 selected_images = []
 img_paths = []
-line_break_point = 0
+line_break_point = 1
 vertical = False
 
 
@@ -51,7 +51,7 @@ def handle(param, param2):
     if target_source and img_paths:
         for currentImage in img_paths:
             imgs.append(Image.open(currentImage))
-        transparent_image = Image.open(f'{script_path()}/img/transparent.png')
+        transparency = np.asarray([0,0,0,0])
         # In the case of a Horizontal Layout this gets the number of rows
         # In the case of vertical, it decides the number of columns
         row_column_number = int(np.ceil(len(imgs) / line_break_point))
@@ -76,7 +76,7 @@ def handle(param, param2):
                 if number_missing_images > 0 and row_column_number > 1:
                     print(F'This row would be incomplete, fill the row with empty images.')
                     while len(np_array_list[-1]) < row_column_number:
-                        np_array_list[-1].append(transparent_image.resize(max_shape).convert("RGBA"))
+                        np_array_list[-1].append(transparency.resize(max_shape))
 
             # np_array_list contains lists of Numpy Arrays, we want to stack each of these Arrays (which represent an
             # Image) horizontally, and then we stack each of the stacked arrays horizontally to combine all images
