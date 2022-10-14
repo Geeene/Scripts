@@ -1,5 +1,6 @@
 import numpy as np
 import obspython as obs
+import math
 from PIL import Image
 
 # Global variables
@@ -8,7 +9,6 @@ selected_images = []
 img_paths = []
 line_break_point = 1
 vertical = False
-
 
 def script_description():
     return "Utility for simplifying creating Teams Displays for Fire Emblem Draft Races, and Death counters for Ironmans.\n" \
@@ -51,7 +51,8 @@ def handle(param, param2):
     if target_source and img_paths:
         for currentImage in img_paths:
             imgs.append(Image.open(currentImage))
-        transparency = np.asarray([0,0,0,0])
+        transparency = np.asarray([[[0,0,0,0],[0,0,0,0],[0,0,0,0]]])
+        print(transparency)
         # In the case of a Horizontal Layout this gets the number of rows
         # In the case of vertical, it decides the number of columns
         row_column_number = int(np.ceil(len(imgs) / line_break_point))
@@ -65,19 +66,22 @@ def handle(param, param2):
         if (not vertical) or (vertical and use_zigzag):
             np_array_list = []
 
-            for i in range(0, len(imgs), line_break_point):
+            for i in range(0, math.ceil(len(imgs)/line_break_point), 1):
                 print(f'Currently trying to add line {i} in horizontal mode')
-                row_imgs = imgs[i: i * line_break_point + line_break_point]
+                row_imgs = imgs[i*line_break_point: i * line_break_point + line_break_point]
                 number_missing_images = line_break_point - len(row_imgs)
                 np_array_list.append([np.asarray(img.resize(max_shape)) for img in row_imgs])
 
+                
                 # Check that there is more than one row, since otherwise it's not necessary since
                 # the transparent image is only added so that we can stack the images.
                 if number_missing_images > 0 and row_column_number > 1:
-                    print(F'This row would be incomplete, fill the row with empty images.')
-                    while len(np_array_list[-1]) < row_column_number:
-                        np_array_list[-1].append(transparency.resize(max_shape))
-
+                    while len(np_array_list[-1]) < line_break_point:
+                        print(f'This row would be incomplete, fill the row with empty images.')
+                        transparency = np.zeros_like(row_imgs[0].resize(max_shape))
+                        np_array_list[-1].append(transparency)
+            for item in np_array_list:
+                print("test " + str(len(item)))
             # np_array_list contains lists of Numpy Arrays, we want to stack each of these Arrays (which represent an
             # Image) horizontally, and then we stack each of the stacked arrays horizontally to combine all images
             combined_images = np.vstack([np.hstack(line) for line in np_array_list])
